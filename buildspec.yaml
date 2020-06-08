@@ -21,7 +21,7 @@ phases:
    commands:
      - echo "Build completed on $(date)"
      - echo "Pushing the Docker image..."
-     - docker push $REPOSITORY_URI:$IMAGE_TAG
+     - docker push $REPOSITORY_URI:$IMAGE_TAG || echo "Error pushing your image. Is the tag in use? Attempting to use the existing tag."
 artifacts:
  files:
    - imageDetail.json
