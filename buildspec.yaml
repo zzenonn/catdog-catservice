@@ -7,8 +7,8 @@ phases:
      - $(aws ecr get-login --no-include-email --region $AWS_REGION)
      - printf '"family":"%s"}' $PROJECTNAME-$ENVIRONMENT-$SERVICE 
      - REPOSITORY_URI=$(aws ecr describe-repositories --repository-names $PROJECTNAME/$SERVICE --query repositories[0].repositoryUri --output text)
-     - IMAGE_TAG=$CODEBUILD_SOURCE_VERSION
-     - echo "TAG is $IMAGE_TAG"
+     - IMAGE_TAG=$COMMIT_ID
+     - echo "TAG is $COMMIT_ID"
  build:
    commands:
      - echo "Build started on $(date)"
