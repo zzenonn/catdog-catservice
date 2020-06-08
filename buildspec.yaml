@@ -1,0 +1,28 @@
+version: 0.2
+ 
+phases:
+ pre_build:
+   commands:
+     - echo "Logging in to Amazon ECR..."
+     - $(aws ecr get-login --no-include-email --region $AWS_REGION)
+     - printf '"family":"%s"}' $PROJECTNAME-$ENVIRONMENT-$SERVICE 
+     - REPOSITORY_URI=$(aws ecr describe-repositories --repository-names $PROJECTNAME/$SERVICE --query repositories[0].repositoryUri)
+     - IMAGE_TAG=$(git describe)
+ build:
+   commands:
+     - echo "Build started on $(date)"
+     - echo "Building the Docker image..."
+     - docker build -t $SERVICE:latest .
+     - docker tag $SERVICE:latest $REPOSITORY_URI:latest
+     - docker tag $SERVICE:latest $REPOSITORY_URI:$IMAGE_TAG
+     - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+ post_build:
+   commands:
+     - echo "Build completed on $(date)"
+     - echo "Pushing the Docker image..."
+     - docker push $REPOSITORY_URI:latest
+     - docker push $REPOSITORY_URI:$IMAGE_TAG
+artifacts:
+ files:
+   - imageDetail.json
+   - appspec.yaml
